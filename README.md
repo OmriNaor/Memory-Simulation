@@ -11,6 +11,7 @@ This simulator supports a variety of options, including:
 - Loading a text page from a file representing the executable program.
 - Removing a page from memory when it's full.
 - Saving dirty pages into a swap file.
+- Init a new page for undirty heap_stack pages. 
 
 ## Structure
 
