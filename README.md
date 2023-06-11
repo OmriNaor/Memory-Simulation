@@ -46,8 +46,14 @@ To compile and run the project, follow these steps:
 
 ## Examples
 
+- Swap file saving the dirty pages:
+
 ![Swap](https://github.com/OmriNaor/Memory-Simulation/assets/106623821/a0c0221b-cc00-4c8f-997c-f0fca34cb0db)
 
+- Main memory containing two pages:
+
 ![Memory](https://github.com/OmriNaor/Memory-Simulation/assets/106623821/c475aa4a-3d7e-41f9-863d-e933584208eb)
+
+- Page table current status:
 
 ![Page Table](https://github.com/OmriNaor/Memory-Simulation/assets/106623821/517cee05-9351-4bbe-b22e-3a59b0280476)
