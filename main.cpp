@@ -2,7 +2,7 @@
 
 
 int main() {
-    sim_mem mem_sm("exec_file", "swap_file" , 16, 32,32, 32, 16, 8);
+    sim_mem mem_sm("exec_file", "swap_file" , 16, 32,32, 32, 8);
 
     mem_sm.store(1025,'$');
     mem_sm.print_memory();
