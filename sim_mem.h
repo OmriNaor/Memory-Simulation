@@ -50,7 +50,7 @@ class sim_mem {
     int clock;             // The current time step in the simulation
 
 public:
-    sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int data_size, int bss_size, int heap_stack_size, int num_of_pages, int page_size);  // Constructor
+    sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int data_size, int bss_size, int heap_stack_size, int page_size);  // Constructor
     ~sim_mem();  // Destructor
     char load(int address);  // Load a byte from the given address
     void store(int address, char value);  // Store a byte to the given address
