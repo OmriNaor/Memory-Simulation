@@ -17,8 +17,7 @@ char main_memory[MEMORY_SIZE];
  * @param num_of_pages: Number of pages in the memory.
  * @param page_size: Size of each page in the memory.
  */
-sim_mem::sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int data_size, int bss_size,
-                 int heap_stack_size, int num_of_pages, int page_size)
+sim_mem::sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int data_size, int bss_size, int heap_stack_size, int page_size)
 {
     // Checking if the executable file name is provided
     if (exe_file_name == nullptr)
