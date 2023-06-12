@@ -2,8 +2,6 @@
 
 
 int main() {
-    char* exec_file;
-    char* swap_file;
     sim_mem mem_sm("exec_file", "swap_file" , 16, 32,32, 32, 16, 8);
 
     mem_sm.store(1025,'$');
