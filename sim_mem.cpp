@@ -22,14 +22,14 @@ sim_mem::sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int
     // Checking if the executable file name is provided
     if (exe_file_name == nullptr)
     {
-        std::cerr << "Error: Missing executable file name." << std::endl;
+        std::cout << "ERR" << std::endl;
         return;
     }
 
     // Checking if the swap file name is provided
     if (swap_file_name == nullptr)
     {
-        std::cerr << "Error: Missing swap file name." << std::endl;
+        std::cout << "ERR" << std::endl;
         return;
     }
 
@@ -39,7 +39,7 @@ sim_mem::sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int
     // Error checking for the executable file opening
     if (program_fd == -1)
     {
-        perror("Error: Failed to open the executable file");
+        perror("ERR\n");
         exit(EXIT_FAILURE);
     }
 
@@ -49,7 +49,7 @@ sim_mem::sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int
     // Error checking for the swap file opening/creation
     if (swapfile_fd == -1)
     {
-        perror("Error: Failed to open/create the swap file");
+        perror("ERR\n");
         close(program_fd);
         exit(EXIT_FAILURE);
     }
@@ -76,8 +76,8 @@ sim_mem::sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int
     for (int i = 0; i < swap_size; i++)
         if (!write_to_file(swapfile_fd, i, &value, sizeof(char)))
         {
-            std::cerr << "Error: Failed to initialize the swap file." << std::endl;
-            return;
+           std::cout << "ERR" << std::endl;
+           return;
         }
 
     // Initializing swap_status array with true values
@@ -129,7 +129,7 @@ char sim_mem::load(int address)
     // If the address is not legal, print an error and return null character
     if (!is_legal(outer, inner))
     {
-        std::cerr << "Address is out of bound!" << std::endl;
+        std::cout << "ERR" << std::endl;
         return '\0';
     }
 
@@ -161,7 +161,7 @@ char sim_mem::load(int address)
     // If the page is a heap/stack page, print an error and return null character (can not load such page for the first time - it has to be created via store)
     if (outer == 3)
     {
-        std::cerr << "May not load a new heap/stack page!" << std::endl;
+        std::cout << "ERR" << std::endl;
         return '\0';
     }
 
@@ -234,10 +234,10 @@ void sim_mem::store(int address, char value)
     long logical_address = get_logical_address(address);
     get_physical_address(logical_address, &outer, &inner, &offset);
 
-    // Check if the address is valid
-    if (!is_legal(outer, inner))
+    // Check if the address is valid or if it's a text page
+    if (!is_legal(outer, inner) || outer == 0)
     {
-        std::cerr << "Address is out of bound!" << std::endl;
+        std::cout << "ERR" << std::endl;
         return;
     }
 
@@ -250,12 +250,6 @@ void sim_mem::store(int address, char value)
         return;
     }
 
-    // If it's a text page, writing is not allowed
-    if (outer == 0)
-    {
-        std::cerr << "Writing to a text page is not allowed!" << std::endl;
-        return;
-    }
 
     // If the page is in the swap file
     if (page_table[outer][inner].dirty)
@@ -359,7 +353,7 @@ void sim_mem::print_memory()
 /**
  * Prints the current state of the swap file.
  */
-void sim_mem::print_swap() const
+void sim_mem::print_swap()
 {
     char* str = (char*) malloc(this->page_size * sizeof(char));
     int i;
@@ -478,7 +472,8 @@ long sim_mem::get_logical_address(long num)
 void sim_mem::get_physical_address(long address, int* outer, int* inner, int* offset) const
 {
     std::stringstream ss;
-    ss << std::setw(12) << std::setfill('0') << address; // Convert the address to a string, padding with zeros as needed.
+    ss << std::setw(12) << std::setfill('0')
+       << address; // Convert the address to a string, padding with zeros as needed.
 
     std::string binary = ss.str(); // Get the string representation of the binary address.
 
@@ -510,7 +505,7 @@ char* sim_mem::read_from_file(int fd, int location, int amount)
     // Reposition the file offset to the specified location.
     if (lseek(fd, location, SEEK_SET) == -1)
     {
-        perror("Unable to reposition file offset: ");
+        perror("ERR\n");
         return nullptr; // Return null if there's an error.
     }
 
@@ -520,13 +515,13 @@ char* sim_mem::read_from_file(int fd, int location, int amount)
     // Check if the read operation was successful.
     if (bytes_read == -1)
     {
-        perror("Read operation failed: ");
+        perror("ERR\n");
         delete[] buffer; // Free the buffer if there's an error.
         return nullptr; // Return null if there's an error.
     }
     else if (bytes_read == 0) // Check if we've reached the end of the file.
     {
-        std::cerr << "Reached end of file without reading any data" << std::endl;
+        std::cout << "ERR" << std::endl;
         delete[] buffer; // Free the buffer if there's an error.
         return nullptr; // Return null if there's an error.
     }
@@ -553,7 +548,7 @@ bool sim_mem::write_to_file(int fd, off_t location, const char* data, size_t siz
     // Check if the write operation was successful.
     if (bytes_written == -1)
     {
-        perror("Error writing to file: ");
+        perror("ERR\n");
         return false; // Return false if there was an error.
     }
 
@@ -581,7 +576,7 @@ bool sim_mem::load_to_memory(page_descriptor* p, int fd, int location)
     {
         if (!clear_memory_page()) // If failed to clear a page from the memory.
         {
-            std::cerr << "Failed to clear a page from memory" << std::endl;
+            std::cout << "ERR" << std::endl;
             return false;
         }
         memory_location = get_memory_space(); // Try to get available memory space again.
@@ -594,16 +589,6 @@ bool sim_mem::load_to_memory(page_descriptor* p, int fd, int location)
 
         if (data == nullptr)
             return false;
-
-        // Delete the page from the swap file.
-        char value = '0';
-        for (int i = p->swap_index * page_size; i < (p->swap_index * page_size) + page_size; i++)
-            if (!write_to_file(swapfile_fd, i, &value, sizeof(char)))
-            {
-                delete[] data;
-                std::cerr << "Failed to delete the page from the swap file" << std::endl;
-                return false;
-            }
 
         // Update swap status and reset page's swap index.
         swap_status[p->swap_index] = true;
