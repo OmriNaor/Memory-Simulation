@@ -59,7 +59,7 @@ sim_mem::sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int
         element = '0';
 
     // Storing the passed arguments into instance variables
-    this->swap_size = data_size + bss_size + heap_stack_size;
+    this->swap_size = (data_size + bss_size + heap_stack_size) / page_size;
     this->page_size = page_size;
     this->heap_stack_size = heap_stack_size;
     this->bss_size = bss_size;
@@ -67,13 +67,13 @@ sim_mem::sim_mem(char exe_file_name[], char swap_file_name[], int text_size, int
     this->text_size = text_size;
     this->inner_table_size = std::log2(page_size);
     this->frames_status = new bool[MEMORY_SIZE / page_size];
-    this->swap_status = new bool[data_size + bss_size + heap_stack_size];
+    this->swap_status = new bool[swap_size];
     this->clock = 0;
     this->frames_clock = new int[MEMORY_SIZE / page_size];
 
     // Initializing the swap file with 0s
     char value = '0';
-    for (int i = 0; i < swap_size; i++)
+    for (int i = 0; i < swap_size * page_size ; i++)
         if (!write_to_file(swapfile_fd, i, &value, sizeof(char)))
         {
            std::cout << "ERR" << std::endl;
@@ -307,7 +307,7 @@ void sim_mem::write_to_memory(int outer, int inner, int offset, char value)
 bool sim_mem::is_legal(int outer, int inner)
 {
     // Check if the outer index is within the legal range (0-3)
-    if (outer < 0 || outer > 3 || inner < 0)
+    if (outer < 0 || outer >= OUTER_TABLE_SIZE || inner < 0)
         return false;
 
     // Array representing the sizes of different sections of memory
