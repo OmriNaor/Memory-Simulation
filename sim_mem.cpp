@@ -127,7 +127,7 @@ char sim_mem::load(int address)
     get_physical_address(logical_address, &outer, &inner, &offset);
 
     // If the address is not legal, print an error and return null character
-    if (!is_legal(outer, inner))
+    if (!is_legal(outer, inner) || address < MIN_ADDRESS || address > MAX_ADDRESS)
     {
         std::cout << "ERR" << std::endl;
         return '\0';
@@ -235,7 +235,7 @@ void sim_mem::store(int address, char value)
     get_physical_address(logical_address, &outer, &inner, &offset);
 
     // Check if the address is valid or if it's a text page
-    if (!is_legal(outer, inner) || outer == 0)
+    if (!is_legal(outer, inner) || outer == 0 || address < MIN_ADDRESS || address > MAX_ADDRESS)
     {
         std::cout << "ERR" << std::endl;
         return;
