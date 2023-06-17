@@ -17,8 +17,11 @@
 #define OUTER_TABLE_SIZE 4
 #define MEMORY_SIZE 16
 #define NEW_PAGE (-1)
+#define MIN_ADDRESS 0 // Min logical address allowed
+#define MAX_ADDRESS 4095 // Max logical address allowed (12 bits)
 
 extern char main_memory[MEMORY_SIZE];  // The main memory of the simulated system
+
 
 // Page descriptor structure for each page
 typedef struct page_descriptor
@@ -54,8 +57,8 @@ public:
     ~sim_mem();  // Destructor
     char load(int address);  // Load a byte from the given address
     void store(int address, char value);  // Store a byte to the given address
-    static void print_memory();  // Print the current state of the memory
-    void print_swap () const;  // Print the current state of the swap file
+    void print_memory();  // Print the current state of the memory
+    void print_swap ();  // Print the current state of the swap file
     void print_page_table();  // Print the current state of the page table
 
 private:
